@@ -84,8 +84,34 @@ public class PhotoNoteActivityFragment extends Fragment {
             }
         });
 
-
+        if(savedInstanceState != null)
+        {
+            photoPath = savedInstanceState.getString("iconBMP");
+            if (!photoPath.equals("None"))
+            {
+                Log.e("nayara-img",photoPath);
+                Bitmap bmp = ImgHelper.decodeScaledBitmapFromSdCard(photoPath, 100, 100);
+                img_view = (ImageView) rootView.findViewById(R.id.thumbnail);
+                img_view.setImageBitmap(bmp);
+            }
+            //EditText caption_txt = (EditText) getView().findViewById(R.id.caption_txt);
+            //EditText title_txt = (EditText) getView().findViewById(R.id.title_txt);
+            caption_txt.setText(savedInstanceState.getString("caption"));
+            title_txt.setText(savedInstanceState.getString("title"));
+        }
         return rootView;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        EditText caption_txt = (EditText) getView().findViewById(R.id.caption_txt);
+        EditText title_txt = (EditText) getView().findViewById(R.id.title_txt);
+        String title = title_txt.getText().toString();
+        String caption = caption_txt.getText().toString();
+        outState.putString("title",title);
+        outState.putString("caption",caption);
+        outState.putString("iconBMP", photoPath);
     }
 
     @Override
@@ -120,7 +146,7 @@ public class PhotoNoteActivityFragment extends Fragment {
 
         try {
             // Save the bitmap to a file
-            File photofile = savedScaled(bmp);
+            final File photofile = savedScaled(bmp);
             // Create and put the parameters
             RequestParams params = new RequestParams();
             params.put("userfile", photofile);
@@ -138,12 +164,21 @@ public class PhotoNoteActivityFragment extends Fragment {
                         String tmp = new String(bytes, "UTF-8");
                         JSONObject j = new JSONObject(tmp);
                         resp = j.getString("saved");
+
+
                     } catch(Exception e)
                     {
 
                     }
                     if(resp.equals("true")) {
                         Log.d("nayara-success", "File uploaded");
+                        EditText caption = (EditText)getView().findViewById(R.id.caption_txt);
+                        caption.setText("");
+                        EditText title = (EditText)getView().findViewById(R.id.title_txt);
+                        title.setText("");
+                        ImageView img = (ImageView) getView().findViewById(R.id.thumbnail);
+                        img.setImageDrawable(null);
+                        photoPath = "None";
                         Toast.makeText(getActivity().getApplicationContext(), "File Uploaded!", Toast.LENGTH_SHORT).show();
                     }
                     else{
@@ -208,6 +243,9 @@ public class PhotoNoteActivityFragment extends Fragment {
         return image;
 
     };
+
+
+
     private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "ashNote_" + timeStamp + "_";
