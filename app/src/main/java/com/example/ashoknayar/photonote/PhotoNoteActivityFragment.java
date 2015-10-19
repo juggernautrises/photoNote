@@ -197,7 +197,8 @@ public class PhotoNoteActivityFragment extends Fragment {
             // it does not disconnect
             client.setTimeout(900000);
             // Post command with associated handler
-            client.post("http://ashnayar.com/image-upload.php", params, rhandler);
+            String url = "";
+            client.post(url, params, rhandler);
         } catch (Exception e) {
             Log.d("nayara-fail", "Something went wrong");
         }
