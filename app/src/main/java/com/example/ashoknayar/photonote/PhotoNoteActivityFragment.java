@@ -65,7 +65,6 @@ public class PhotoNoteActivityFragment extends Fragment {
                     String caption_text = caption_txt.getText().toString();
                     String title_text = title_txt.getText().toString();
                     postData(caption_text, title_text, photoPath);
-                    //Toast.makeText(getActivity().getApplicationContext(), caption_text, Toast.LENGTH_SHORT).show();
 
                 }
 
@@ -94,8 +93,6 @@ public class PhotoNoteActivityFragment extends Fragment {
                 img_view = (ImageView) rootView.findViewById(R.id.thumbnail);
                 img_view.setImageBitmap(bmp);
             }
-            //EditText caption_txt = (EditText) getView().findViewById(R.id.caption_txt);
-            //EditText title_txt = (EditText) getView().findViewById(R.id.title_txt);
             caption_txt.setText(savedInstanceState.getString("caption"));
             title_txt.setText(savedInstanceState.getString("title"));
         }
@@ -208,35 +205,19 @@ public class PhotoNoteActivityFragment extends Fragment {
     {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "note_" + timeStamp + "_scaled.jpg";
-        //File storageDir = new File(Environment.getExternalStorageDirectory(),"PhotoNotes");
         File storageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),"photoNotes");
 
         if(!storageDir.mkdirs())
         {
+            storageDir.mkdirs();
             Log.e("nayara-dirfailed",storageDir.getAbsolutePath());
         }
-//        if (!storageDir.exists()){
-//            storageDir.mkdirs();
-//            storageDir.mkdir();
-//            Toast.makeText(getActivity().getApplicationContext(), storageDir.toString()+" does not exist!", Toast.LENGTH_SHORT).show();
-//
-//        }
         File image = new File(storageDir, imageFileName);
-//        File image = File.createTempFile(
-//                imageFileName,  /* prefix */
-//                ".jpg",         /* suffix */
-//                storageDir      /* directory */
-//        );
-        //Toast.makeText(getActivity().getApplicationContext(), image.toString(), Toast.LENGTH_SHORT).show();
-
         FileOutputStream fout = new FileOutputStream(image);
-        //Bitmap pictureBitmap = getImageBitmap(myurl); // obtaining the Bitmap
         bmp.compress(Bitmap.CompressFormat.JPEG, 85, fout); // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
         fout.flush();
         fout.close(); // do not forget to close the stream
         Log.e("ash-image", "storage dir: " + storageDir.getAbsolutePath());
-
-        //MediaStore.Images.Media.insertImage(getActivity().getContentResolver(), image.getAbsolutePath(), image.getName(), image.getName());
         Log.e("ash-image", "img absolute path: " + image.getAbsolutePath());
         Intent mediaScanIntent = new Intent( Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
         mediaScanIntent.setData(Uri.fromFile(image));
@@ -250,8 +231,6 @@ public class PhotoNoteActivityFragment extends Fragment {
     private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "ashNote_" + timeStamp + "_";
-        //File storageDir = Environment.getExternalStoragePublicDirectory(
-        //        Environment.DIRECTORY_PICTURES);
 
         File storageDir = new File(Environment.getExternalStorageDirectory()+"/PhotoNotes/");
         if (!storageDir.exists()){
@@ -264,7 +243,6 @@ public class PhotoNoteActivityFragment extends Fragment {
         );
 
         // Save a file: path for use with ACTION_VIEW intents
-        //mCurrentPhotoPath = image.getAbsolutePath();
         return image;
 
     }

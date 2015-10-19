@@ -101,14 +101,12 @@ public class ImgHelper {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = false;
         Bitmap myBitmap = BitmapFactory.decodeFile(filepath);
-        //Bitmap resizedBitmap = Bitmap.createScaledBitmap(myBitmap, newWidth, newHeight, false);
         int rotation = getRotation(filepath);
         Matrix matrix = new Matrix();
         if (rotation != 0f) {matrix.preRotate(rotation);}
         matrix.postScale(percent, percent);
         Bitmap bmp = Bitmap.createBitmap(myBitmap, 0, 0, myBitmap.getWidth(), myBitmap.getHeight(), matrix, true);
         return bmp;
-        //return Bitmap.createScaledBitmap(bmp, newWidth, newHeight, true);
 
     }
     public static Bitmap resizeToWidth(String filepath, float desired_width)
