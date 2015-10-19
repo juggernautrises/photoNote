@@ -25,8 +25,14 @@
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/caption_txt"
+        android:id="@+id/title_txt"
         android:layout_gravity="center_horizontal"
+        android:hint="Title" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/caption_txt"
         android:hint="Caption" />
 
     <Button

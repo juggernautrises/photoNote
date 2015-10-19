@@ -1,12 +1,9 @@
 package com.example.ashoknayar.photonote;
-
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.util.Log;
-import android.widget.Toast;
-
 import java.io.IOException;
 
 /**
@@ -29,6 +26,7 @@ public class ImgHelper {
         }
     }
 
+
     public static Bitmap decodeScaledBitmapFromSdCard(String filePath,
                                                       int reqWidth, int reqHeight) {
 
@@ -47,9 +45,6 @@ public class ImgHelper {
         Matrix matrix = new Matrix();
         if (rotation != 0f) {matrix.preRotate(rotation);}
         return Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matrix, true);
-
-
-
 
     }
     public static int calculateInSampleSize(
@@ -72,4 +67,73 @@ public class ImgHelper {
 
         return inSampleSize;
     }
+
+
+    public static int getImageHeight(String filepath)
+    {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(filepath, options);
+        return options.outHeight;
+    }
+
+    public static int getImageWidth(String filepath)
+    {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(filepath, options);
+        return options.outWidth;
+    }
+
+    public static float getPercent(String filepath, float desired_width)
+    {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(filepath, options);
+        float percent = desired_width/options.outWidth;
+        return percent;
+    }
+    public static Bitmap resize(String filepath, float desired_width)
+    {
+        float percent = getPercent(filepath, desired_width);
+        int newWidth = Math.round(getImageWidth(filepath) * percent);
+        int newHeight = Math.round(getImageHeight(filepath) * percent);
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = false;
+        Bitmap myBitmap = BitmapFactory.decodeFile(filepath);
+        //Bitmap resizedBitmap = Bitmap.createScaledBitmap(myBitmap, newWidth, newHeight, false);
+        int rotation = getRotation(filepath);
+        Matrix matrix = new Matrix();
+        if (rotation != 0f) {matrix.preRotate(rotation);}
+        matrix.postScale(percent, percent);
+        Bitmap bmp = Bitmap.createBitmap(myBitmap, 0, 0, myBitmap.getWidth(), myBitmap.getHeight(), matrix, true);
+        return bmp;
+        //return Bitmap.createScaledBitmap(bmp, newWidth, newHeight, true);
+
+    }
+    public static Bitmap resizeToWidth(String filepath, float desired_width)
+    {
+
+
+        float percent = getPercent(filepath, desired_width);
+        int newWidth = Math.round(getImageWidth(filepath) * percent);
+        int newHeight = Math.round(getImageHeight(filepath) * percent);
+
+        BitmapFactory.Options options = new BitmapFactory.Options();
+
+        // First decode with inJustDecodeBounds=true to check dimensions
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(filepath, options);
+
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options, newWidth, newHeight);
+
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false;
+
+        return BitmapFactory.decodeFile(filepath, options);
+
+
+    }
+
 }
