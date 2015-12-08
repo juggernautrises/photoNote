@@ -100,6 +100,7 @@ public class ImgHelper {
         int newHeight = Math.round(getImageHeight(filepath) * percent);
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = false;
+        options.inScaled = false;
         Bitmap myBitmap = BitmapFactory.decodeFile(filepath);
         int rotation = getRotation(filepath);
         Matrix matrix = new Matrix();

@@ -194,7 +194,7 @@ public class PhotoNoteActivityFragment extends Fragment {
             // it does not disconnect
             client.setTimeout(900000);
             // Post command with associated handler
-            String url = "";
+            String url = URL.UPLOAD_URL;
             client.post(url, params, rhandler);
         } catch (Exception e) {
             Log.d("nayara-fail", "Something went wrong");
@@ -214,7 +214,7 @@ public class PhotoNoteActivityFragment extends Fragment {
         }
         File image = new File(storageDir, imageFileName);
         FileOutputStream fout = new FileOutputStream(image);
-        bmp.compress(Bitmap.CompressFormat.JPEG, 85, fout); // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
+        bmp.compress(Bitmap.CompressFormat.JPEG, 100, fout); // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
         fout.flush();
         fout.close(); // do not forget to close the stream
         Log.e("ash-image", "storage dir: " + storageDir.getAbsolutePath());
