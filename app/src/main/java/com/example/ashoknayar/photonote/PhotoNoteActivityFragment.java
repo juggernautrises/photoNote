@@ -141,6 +141,7 @@ public class PhotoNoteActivityFragment extends Fragment {
         AsyncHttpClient client = new AsyncHttpClient();
         Bitmap bmp = ImgHelper.resize(image_path, 700);
 
+        //Bitmap bmp = ImgHelper.decodeScaledBitmapFromSdCard(image_path, 100, 100);
         try {
             // Save the bitmap to a file
             final File photofile = savedScaled(bmp);
@@ -204,7 +205,7 @@ public class PhotoNoteActivityFragment extends Fragment {
     private File savedScaled(Bitmap bmp) throws IOException
     {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "note_" + timeStamp + "_scaled.jpg";
+        String imageFileName = "note_" + timeStamp + "_scaled.png";
         File storageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),"photoNotes");
 
         if(!storageDir.mkdirs())
@@ -213,8 +214,9 @@ public class PhotoNoteActivityFragment extends Fragment {
             Log.e("nayara-dirfailed",storageDir.getAbsolutePath());
         }
         File image = new File(storageDir, imageFileName);
+
         FileOutputStream fout = new FileOutputStream(image);
-        bmp.compress(Bitmap.CompressFormat.JPEG, 100, fout); // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
+        bmp.compress(Bitmap.CompressFormat.PNG, 100, fout); // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
         fout.flush();
         fout.close(); // do not forget to close the stream
         Log.e("ash-image", "storage dir: " + storageDir.getAbsolutePath());

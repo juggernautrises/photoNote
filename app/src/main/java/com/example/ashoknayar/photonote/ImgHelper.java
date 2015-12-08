@@ -93,46 +93,47 @@ public class ImgHelper {
         float percent = desired_width/options.outWidth;
         return percent;
     }
-    public static Bitmap resize(String filepath, float desired_width)
+
+    public static Bitmap resize(String filepath, float desiredWidth)
     {
-        float percent = getPercent(filepath, desired_width);
-        int newWidth = Math.round(getImageWidth(filepath) * percent);
-        int newHeight = Math.round(getImageHeight(filepath) * percent);
+        // Get the source image's dimensions
         BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = false;
-        options.inScaled = false;
-        Bitmap myBitmap = BitmapFactory.decodeFile(filepath);
-        int rotation = getRotation(filepath);
-        Matrix matrix = new Matrix();
-        if (rotation != 0f) {matrix.preRotate(rotation);}
-        matrix.postScale(percent, percent);
-        Bitmap bmp = Bitmap.createBitmap(myBitmap, 0, 0, myBitmap.getWidth(), myBitmap.getHeight(), matrix, true);
-        return bmp;
-
-    }
-    public static Bitmap resizeToWidth(String filepath, float desired_width)
-    {
-
-
-        float percent = getPercent(filepath, desired_width);
-        int newWidth = Math.round(getImageWidth(filepath) * percent);
-        int newHeight = Math.round(getImageHeight(filepath) * percent);
-
-        BitmapFactory.Options options = new BitmapFactory.Options();
-
-        // First decode with inJustDecodeBounds=true to check dimensions
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(filepath, options);
 
-        // Calculate inSampleSize
-        options.inSampleSize = calculateInSampleSize(options, newWidth, newHeight);
+        int srcWidth = options.outWidth;
 
-        // Decode bitmap with inSampleSize set
+        // Only scale if the source is big enough. This code is just trying to fit a image into a certain width.
+        if(desiredWidth > srcWidth)
+            desiredWidth = srcWidth;
+
+        // Calculate the correct inSampleSize/scale value. This helps reduce memory use. It should be a power of 2
+        // from: http://stackoverflow.com/questions/477572/android-strange-out-of-memory-issue/823966#823966
+        int inSampleSize = 1;
+        while(srcWidth / 2 > desiredWidth){
+            srcWidth /= 2;
+            inSampleSize *= 2;
+        }
+
+        float desiredScale = (float) desiredWidth / srcWidth;
+
+        // Decode with inSampleSize
         options.inJustDecodeBounds = false;
+        options.inDither = false;
+        options.inSampleSize = inSampleSize;
+        options.inScaled = false;
+        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        Bitmap sampledSrcBitmap = BitmapFactory.decodeFile(filepath, options);
 
-        return BitmapFactory.decodeFile(filepath, options);
+        // Resize
+        Matrix matrix = new Matrix();
+        matrix.postScale(desiredScale, desiredScale);
+        int rotation = getRotation(filepath);
 
-
+        if (rotation != 0f) {matrix.preRotate(rotation);}
+        Bitmap scaledBitmap = Bitmap.createBitmap(sampledSrcBitmap, 0, 0, sampledSrcBitmap.getWidth(), sampledSrcBitmap.getHeight(), matrix, true);
+        sampledSrcBitmap = null;
+        return scaledBitmap;
     }
 
 }
