@@ -94,9 +94,76 @@ public class ImgHelper {
         return percent;
     }
 
+    // TODO: Scale based on max(height, width)
+
+    public static Bitmap resizeToMax(String filepath, float max_dimension)
+    {
+        float desiredScale;
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(filepath, options);
+        int srcWidth = options.outWidth;
+        int srcHeight = options.outHeight;
+
+        float reSampleSize;
+        if(srcWidth > srcHeight){
+            reSampleSize =  srcWidth;
+        }
+        else{
+            reSampleSize = srcHeight;
+        }
+
+        // Only scale if the source is big enough. This code is just trying to fit a image into a certain width.
+        if(max_dimension > srcWidth)
+            max_dimension = srcWidth;
+
+        // Calculate the correct inSampleSize/scale value. This helps reduce memory use. It should be a power of 2
+        // from: http://stackoverflow.com/questions/477572/android-strange-out-of-memory-issue/823966#823966
+        int inSampleSize = 1;
+        while(reSampleSize / 2 > max_dimension){
+            reSampleSize /= 2;
+            inSampleSize *= 2;
+        }
+
+        /*
+        if(max_dimension/srcWidth < max_dimension/srcHeight)
+        {
+            desiredScale = (float) max_dimension / srcWidth;
+            //Log.d("nayara- max/width", String.valueOf(desiredScale));
+        }
+        else
+        {
+            desiredScale = (float) max_dimension / srcHeight;
+            //Log.d("nayara- max/height", String.valueOf(desiredScale));
+        }
+        */
+
+        desiredScale = max_dimension / reSampleSize;
+
+        // Decode with inSampleSize
+        options.inJustDecodeBounds = false;
+        options.inDither = false;
+        options.inSampleSize = inSampleSize;
+        options.inScaled = false;
+        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        Bitmap sampledSrcBitmap = BitmapFactory.decodeFile(filepath, options);
+
+        // Resize
+        Matrix matrix = new Matrix();
+        Log.d("nayara-postscale-MAX ", String.valueOf(desiredScale));
+        matrix.postScale(desiredScale, desiredScale);
+        int rotation = getRotation(filepath);
+
+        if (rotation != 0f) {matrix.preRotate(rotation);}
+        Bitmap scaledBitmap = Bitmap.createBitmap(sampledSrcBitmap, 0, 0, sampledSrcBitmap.getWidth(), sampledSrcBitmap.getHeight(), matrix, true);
+        sampledSrcBitmap = null;
+        return scaledBitmap;
+
+    }
+
     public static Bitmap resize(String filepath, float desiredWidth)
     {
-        // Get the source image's dimensions
+        // Get the source image's dimension
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(filepath, options);
@@ -116,6 +183,7 @@ public class ImgHelper {
         }
 
         float desiredScale = (float) desiredWidth / srcWidth;
+        Log.d("nayara-resize_original", String.valueOf(srcWidth));
 
         // Decode with inSampleSize
         options.inJustDecodeBounds = false;
